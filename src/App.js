@@ -1,56 +1,81 @@
-import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
+import React, { useEffect, useState } from 'react';
 import './App.css';
+import Input from './components/Input';
+import { makeStyles } from '@material-ui/core/styles';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectTodoList, fetchTodo } from './features/todoSlice'
+import TodoItem from './components/TodoItem';
+import axios from 'axios'
+
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
+import InputLabel from '@material-ui/core/InputLabel';
+import FormControl from '@material-ui/core/FormControl';
+
+
+const useStyles = makeStyles((theme) => ({
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
+  selectEmpty: {
+    marginTop: theme.spacing(2),
+  },
+}));
 
 function App() {
+  const dispatch = useDispatch()
+  useEffect(() => {
+    axios.get('http://localhost:5000/tasks')
+      .then(res => {
+        dispatch(fetchTodo(res.data))
+    })
+  }, [dispatch])
+  const classes = useStyles();
+  const todos = useSelector(selectTodoList)
+  const [mode, setMode] = useState('none')
+  var renderList
+
+  const handleChange = (e) => {
+    setMode(e.target.value)
+  }
+  
+  if (mode === 'none') {
+    renderList = todos.map((todo) => (<TodoItem todo={todo} key={todo.id} />))
+  }
+  else if(mode === 'completed') {
+    const result = todos.filter((todo) => todo.done === true)
+    renderList = result.map(todo => (<TodoItem todo={todo} key={todo.id} />))
+  }
+  else {
+    const result = todos.filter((todo) => todo.done === false)
+    renderList = result.map(todo => (<TodoItem todo={todo} key={todo.id} />))
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
+      <div className="app__container">
+        <div>
+          <FormControl className={classes.formControl}>
+            <InputLabel id="demo-simple-select-label">Filter by</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={mode}
+              onChange={handleChange}
+            >
+              <MenuItem value='none'>None</MenuItem>
+              <MenuItem value='completed'>Completed</MenuItem>
+              <MenuItem value='incomplete'>Not completed</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
+        <div className="app_todoContainer">
+          {renderList}
+        </div>
+        <Input />
+      </div>
+      
     </div>
   );
 }

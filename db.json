@@ -1,0 +1,24 @@
+{
+  "tasks": [
+    {
+      "done": false,
+      "item": "Update the project",
+      "id": 1
+    },
+    {
+      "item": "add todo samples",
+      "done": false,
+      "id": 1630392518389
+    },
+    {
+      "done": true,
+      "item": "Learn Redux Toolkit and Redux AsyncThunk",
+      "id": 1630395591400
+    },
+    {
+      "done": false,
+      "item": "Hello World",
+      "id": 1630395613233
+    }
+  ]
+}
